@@ -37,8 +37,16 @@ export const count = () => {
 export const getRoom = id => {
   return db.rooms.get(id).then(room => {
     return room;
-  });
+  })
+    .catch(err => {
+      throw err;
+    });
 };
+
+export const getAllRooms = () => {
+  return db.rooms.toArray().then(rooms => rooms)
+      
+}
 
 export const addRoom = room => {
   /**

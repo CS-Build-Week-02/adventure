@@ -1,47 +1,61 @@
-import React, { Component } from "react";
+import React, { useState, useEffect } from "react";
 import logo from "../logo.svg";
 import "./App.css";
 import { ActionButtons } from "./ActionButtons";
+import Map from './Map/Map'
 import axios from "axios";
 import config from "config";
-import { init } from "../db";
+import { init, getAllRooms } from "../db";
 import { status } from "./actions";
 
-class App extends Component {
-  state = {
-    currentRoom: null,
-    player: null
-  };
+const App = () => {
+  const [currentRoom, setCurrentRoom] = useState(null)
+  const [player, setPlayer] = useState(null)
+  const [rooms, setRooms] = useState([])
 
-  componentDidMount() {
+  useEffect(() => {
     axios.defaults.headers.common["Authorization"] = `Token ${config.API_KEY}`;
 
     init().then(room => {
-      this.setCurrentRoom(room);
+      setCurrentRoom(room);
     });
 
-    // TODO uncomment this when status has been completed in ./actions.js
-    /*status().then(player => {
-      this.setState({ player });
-    });*/
-  }
+  }, []);
 
-  setCurrentRoom = currentRoom => {
-    this.setState({ currentRoom });
-  };
+  useEffect(() => {
+    getAllRooms().then(newRooms => {
+      setRooms(newRooms)
+    }).then(res => console.log(rooms))
+  }, [currentRoom])
 
-  render() {
-    const { currentRoom } = this.state;
 
-    return (
-      <div className="App">
-        <ActionButtons
-          currentRoom={currentRoom}
-          setCurrentRoom={this.setCurrentRoom}
-        />
-      </div>
-    );
-  }
+  // componentDidMount() {
+  //   axios.defaults.headers.common["Authorization"] = `Token ${config.API_KEY}`;
+
+  //   init().then(room => {
+  //     this.setCurrentRoom(room);
+  //   });
+
+  //   // TODO uncomment this when status has been completed in ./actions.js
+  //   /*status().then(player => {
+  //     this.setState({ player });
+  //   });*/
+  // }
+
+  // setCurrentRoom = currentRoom => {
+  //   this.setState({ currentRoom });
+  // };
+
+
+  return (
+    <div className="App">
+      <ActionButtons
+        currentRoom={currentRoom}
+        setCurrentRoom={setCurrentRoom}
+      />
+      <Map rooms={rooms} />
+    </div>
+  );
 }
 
 export default App;

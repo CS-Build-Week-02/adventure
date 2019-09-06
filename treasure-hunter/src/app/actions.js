@@ -126,7 +126,7 @@ export const move = async (dir, nextRoomId) => {
     });
 };
 
-export const explore = async currentRoom => {
+export const explore = async (currentRoom, setRoom)=> {
   cooling = currentRoom.cooldown;
 
   // if total rooms length is <500 proceed we can also change this to stop on button click instead
@@ -135,9 +135,10 @@ export const explore = async currentRoom => {
   // if (totalRooms < 500) {
   // find an unvisited room in currentRoom.exits, set to "exit"
   let exit;
+  let curr = {coordinates: currentRoom.coordinates, exits: currentRoom.exits, cooldown: currentRoom.cooldown}
   console.log(
     "current room",
-    JSON.stringify(currentRoom, null, 1),
+    JSON.stringify(curr, null, 1),
     currentRoom.exits
   );
   for (let ex of Object.keys(currentRoom.exits)) {
@@ -176,6 +177,7 @@ export const explore = async currentRoom => {
   await updateRoom(currentRoom, currentRoom.id);
 
   console.log("now in", visitedRoom);
+  setRoom(visitedRoom)
   // if there are items in the room, pick it up
   if (visitedRoom.items.length) {
     for (let item of visitedRoom.items) {
@@ -201,6 +203,6 @@ export const explore = async currentRoom => {
 
   // TODO if you're at a shrine, pray
 
-  explore(visitedRoom);
+  explore(visitedRoom, setRoom);
   // }
 };
