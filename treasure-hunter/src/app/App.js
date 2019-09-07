@@ -5,7 +5,7 @@ import { ActionButtons } from "./ActionButtons";
 import axios from "axios";
 import config from "config";
 import { init } from "../db";
-import { status } from "./actions";
+import { default as withActions } from "./actions";
 
 class App extends Component {
   state = {
@@ -21,7 +21,7 @@ class App extends Component {
     });
 
     // TODO uncomment this when status has been completed in ./actions.js
-    /*status().then(player => {
+    /*this.props.status().then(player => {
       this.setState({ player });
     });*/
   }
@@ -44,4 +44,4 @@ class App extends Component {
   }
 }
 
-export default App;
+export default withActions(App);

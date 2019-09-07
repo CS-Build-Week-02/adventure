@@ -16,7 +16,6 @@ export const init = () => {
     .get(url)
     .then(({ data }) => {
       return db.rooms.get(data.room_id).then(initialRoom => {
-        console.log("initial room: ", initialRoom);
 
         if (!initialRoom) {
           return addRoom(data);
