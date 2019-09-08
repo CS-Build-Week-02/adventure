@@ -1,22 +1,25 @@
 import React, { useState, useEffect } from "react";
 import logo from "../logo.svg";
 import "./App.css";
+import "../../node_modules/react-vis/dist/style.css"
 import { ActionButtons } from "./ActionButtons";
 import Map from './Map/Map'
 import axios from "axios";
 import config from "config";
 import { init, getAllRooms } from "../db";
-import { status } from "./actions";
+import { default as withActions } from "./actions";
 
 const App = () => {
   const [currentRoom, setCurrentRoom] = useState(null)
   const [player, setPlayer] = useState(null)
   const [rooms, setRooms] = useState([])
+  const [path, setPath] = useState([])
 
   useEffect(() => {
     axios.defaults.headers.common["Authorization"] = `Token ${config.API_KEY}`;
 
     init().then(room => {
+      setPath([room])
       setCurrentRoom(room);
     });
 
@@ -25,26 +28,11 @@ const App = () => {
   useEffect(() => {
     getAllRooms().then(newRooms => {
       setRooms(newRooms)
-    }).then(res => console.log(rooms))
+    }).then(res => {
+      console.log(rooms.map(room => room.coordinates))
+      setPath([...path, currentRoom])
+    })
   }, [currentRoom])
-
-
-  // componentDidMount() {
-  //   axios.defaults.headers.common["Authorization"] = `Token ${config.API_KEY}`;
-
-  //   init().then(room => {
-  //     this.setCurrentRoom(room);
-  //   });
-
-  //   // TODO uncomment this when status has been completed in ./actions.js
-  //   /*status().then(player => {
-  //     this.setState({ player });
-  //   });*/
-  // }
-
-  // setCurrentRoom = currentRoom => {
-  //   this.setState({ currentRoom });
-  // };
 
 
   return (
@@ -53,9 +41,9 @@ const App = () => {
         currentRoom={currentRoom}
         setCurrentRoom={setCurrentRoom}
       />
-      <Map rooms={rooms} />
+      <Map rooms={rooms} path={path} currentRoom={currentRoom} />
     </div>
   );
 }
 
-export default App;
+export default withActions(App);

@@ -1,13 +1,14 @@
 import React, { Component } from "react";
 import { FlexRow } from "style";
 import { Button } from "@material-ui/core";
-import { move, explore, take } from "../actions";
+import { default as withActions } from "../actions";
 
 class ActionButtons extends Component {
   moveAndSetCurrentRoom = dir => {
     // TODO look up room id in dictionary to see if we know the next room id and send that along if so
 
-    move(dir)
+    this.props
+      .move(dir)
       .then(room => {
         this.props.setCurrentRoom(room);
       })
@@ -19,14 +20,14 @@ class ActionButtons extends Component {
 
     if (currentRoom.items.length) {
       for (let item of currentRoom.items) {
-        const itemTaken = await take(item);
+        const itemTaken = await this.props.take(item);
         console.log("item taken: ", itemTaken);
       }
     }
   };
 
   render() {
-    const { currentRoom, setCurrentRoom } = this.props;
+    const { currentRoom, setCurrentRoom, addNewRoom } = this.props;
 
     return (
       <FlexRow alignCenter>
@@ -69,7 +70,7 @@ class ActionButtons extends Component {
         <Button
           variant="contained"
           color="primary"
-          onClick={() => explore(currentRoom, setCurrentRoom)}
+          onClick={() => this.props.explore(currentRoom, setCurrentRoom, addNewRoom)}
           disabled={!currentRoom}
         >
           Explore
@@ -79,4 +80,4 @@ class ActionButtons extends Component {
   }
 }
 
-export default ActionButtons;
+export default withActions(ActionButtons);

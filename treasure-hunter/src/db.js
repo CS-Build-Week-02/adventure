@@ -16,7 +16,6 @@ export const init = () => {
     .get(url)
     .then(({ data }) => {
       return db.rooms.get(data.room_id).then(initialRoom => {
-        console.log("initial room: ", initialRoom);
 
         if (!initialRoom) {
           return addRoom(data);
@@ -44,7 +43,7 @@ export const getRoom = id => {
 };
 
 export const getAllRooms = () => {
-  return db.rooms.toArray().then(rooms => rooms)
+  return db.rooms.toArray().then(rooms => rooms).catch(err => console.log(err))
       
 }
 
@@ -58,6 +57,7 @@ export const addRoom = room => {
     exits[r] = -1;
   }
   room.exits = exits;
+
 
   // initialize the list with an empty array for this node
   return db
@@ -75,6 +75,8 @@ export const addRoom = room => {
     });
 };
 
+
+
 export const updateRoom = room => {
   /**
    * updates a room in the map
@@ -86,5 +88,6 @@ export const updateRoom = room => {
     .put(room)
     .then(() => {
       return room;
-    });
+    })
+    .catch(err => console.log(err))
 };
