@@ -36,8 +36,16 @@ export const count = () => {
 export const getRoom = id => {
   return db.rooms.get(id).then(room => {
     return room;
-  });
+  })
+    .catch(err => {
+      throw err;
+    });
 };
+
+export const getAllRooms = () => {
+  return db.rooms.toArray().then(rooms => rooms).catch(err => console.log(err))
+      
+}
 
 export const addRoom = room => {
   /**
@@ -49,6 +57,7 @@ export const addRoom = room => {
     exits[r] = -1;
   }
   room.exits = exits;
+
 
   // initialize the list with an empty array for this node
   return db
@@ -66,6 +75,8 @@ export const addRoom = room => {
     });
 };
 
+
+
 export const updateRoom = room => {
   /**
    * updates a room in the map
@@ -77,5 +88,6 @@ export const updateRoom = room => {
     .put(room)
     .then(() => {
       return room;
-    });
+    })
+    .catch(err => console.log(err))
 };

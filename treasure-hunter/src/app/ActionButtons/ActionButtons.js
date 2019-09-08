@@ -27,7 +27,7 @@ class ActionButtons extends Component {
   };
 
   render() {
-    const { currentRoom } = this.props;
+    const { currentRoom, setCurrentRoom } = this.props;
 
     return (
       <FlexRow alignCenter>
@@ -70,7 +70,7 @@ class ActionButtons extends Component {
         <Button
           variant="contained"
           color="primary"
-          onClick={() => this.props.explore(currentRoom)}
+          onClick={() => this.props.explore(currentRoom, setCurrentRoom)}
           disabled={!currentRoom}
         >
           Explore

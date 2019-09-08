@@ -137,7 +137,7 @@ export default WrappedComponent => {
         });
     };
 
-    explore = async startingRoom => {
+    explore = async (startingRoom, setRoom, addNewRoom) => {
       this.setState({ exploring: true });
       let breadcrumbs = localStorage.getItem("breadcrumbs");
       if (breadcrumbs) {
@@ -153,8 +153,7 @@ export default WrappedComponent => {
 
       console.log(
         "starting room",
-        JSON.stringify(startingRoom, null, 1),
-        startingRoom.exits
+        JSON.stringify(startingRoom, null, 1)
       );
 
       this.cooling = startingRoom.cooldown;
@@ -162,7 +161,7 @@ export default WrappedComponent => {
       while (breadcrumbs.length) {
         // remove from stack, this is our current room
         const r = breadcrumbs[breadcrumbs.length - 1];
-        this.setState({ currentRoom: r });
+        await this.setState({ currentRoom: r });
 
         // if there are items in the room, pick it up
         if (r.items.length) {
@@ -197,7 +196,9 @@ export default WrappedComponent => {
             const exit = { [ex]: r.exits[ex] };
             console.log("now heading ", exit);
             // try to move
-            let nextRoom = await this.move(Object.keys(exit)[0]);
+            let nextRoom = await this.move(Object.keys(exit)[0])
+            await setRoom(nextRoom)
+            
 
             // add and set our next room, visitedRoom
             let visitedRoom = await addRoom(nextRoom);
@@ -214,7 +215,10 @@ export default WrappedComponent => {
             r.exits[Object.keys(exit)[0]] = visitedRoom.id;
             await updateRoom(r, r.id);
 
-            console.log("now in", visitedRoom);
+            console.log("now in", visitedRoom.room_id, visitedRoom.coordinates);
+
+
+
 
             break;
           }
@@ -229,7 +233,9 @@ export default WrappedComponent => {
             ind = ids.indexOf(r.id),
             dir = this.getOppositeDir(Object.keys(goBackTo.exits)[ind]);
           console.log("back tracking to: ", dir);
-          await this.move(dir);
+          await this.move(dir).then(room => {
+            setRoom(room)
+          })
         }
       }
     };
