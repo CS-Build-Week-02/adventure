@@ -29,7 +29,6 @@ const App = () => {
     getAllRooms().then(newRooms => {
       setRooms(newRooms)
     }).then(res => {
-      console.log(rooms.map(room => room.coordinates))
       setPath([...path, currentRoom])
     })
   }, [currentRoom])

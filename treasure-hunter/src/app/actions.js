@@ -153,8 +153,7 @@ export default WrappedComponent => {
 
       console.log(
         "starting room",
-        JSON.stringify(startingRoom, null, 1),
-        startingRoom.exits
+        JSON.stringify(startingRoom, null, 1)
       );
 
       this.cooling = startingRoom.cooldown;
@@ -216,7 +215,7 @@ export default WrappedComponent => {
             r.exits[Object.keys(exit)[0]] = visitedRoom.id;
             await updateRoom(r, r.id);
 
-            console.log("now in", visitedRoom);
+            console.log("now in", visitedRoom.room_id, visitedRoom.coordinates);
 
 
 

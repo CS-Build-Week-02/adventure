@@ -19,7 +19,6 @@ const Map = ({ rooms, path, currentRoom }) => {
 
     return (
         <>
-        {console.log(currentRoom ? true : false)}
             <XYPlot height={500} width={500} animation={true}>
                 <VerticalGridLines />
                 <HorizontalGridLines />
