@@ -4,6 +4,8 @@ import { XYPlot, LineMarkSeries, XAxis, YAxis, VerticalGridLines, HorizontalGrid
 const Map = ({ rooms, path, currentRoom }) => {
 
     const [data, setData] = useState([])
+    const [xDomain, setXDomain] = useState([])
+    const [yDomain, setYDomain] = useState([])
 
     useEffect(() => {
         let newRooms = path.map(room => {
@@ -12,7 +14,11 @@ const Map = ({ rooms, path, currentRoom }) => {
             return coors
         })
 
+
         setData(newRooms)
+        setYDomain([(Math.min(newRooms.map(coor => coor.y)) - 10), (Math.max(newRooms.map(coor => coor.y)) + 10)])
+        setXDomain([(Math.min(newRooms.map(coor => coor.x)) - 10), (Math.max(newRooms.map(coor => coor.x)) + 10)])
+        
     }, [currentRoom])
 
     
@@ -24,8 +30,8 @@ const Map = ({ rooms, path, currentRoom }) => {
                 <HorizontalGridLines />
                 <XAxis />
                 <YAxis />
-                <LineMarkSeries data={data} />
-                {data.length > 1 ? <MarkSeries data={[data[data.length - 1]]} color={"red"} /> : null}
+                <LineMarkSeries data={data} xPadding={10000 / data.length} yPadding={10000 / data.length}/>
+                {data.length >= 1 ? <MarkSeries data={[data[data.length - 1]]} color={"red"} /> : null}
             </XYPlot>
         </>
     )
