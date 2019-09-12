@@ -5,6 +5,7 @@ import config from "config";
 let db;
 
 export const init = () => {
+  
   db = new Dexie("TreasureHuntDB");
   db.version(1).stores({
     rooms: "&id"
@@ -47,10 +48,22 @@ export const getAllRooms = () => {
       
 }
 
-export const addRoom = room => {
+export const addRoom = async room => {
   /**
    * adds a room to the map
    */
+  let check = await getRoom(room.room_id)
+  if (check) {
+    room.id = room.room_id;
+    return updateRoom(room)
+    .then(room => {
+      return room
+    })
+    .catch(err => {
+      console.log(err)
+    })
+  }
+else {
   room.id = room.room_id;
   let exits = {};
   for (let r of room.exits) {
@@ -73,6 +86,8 @@ export const addRoom = room => {
           console.log(err);
         });
     });
+}
+  
 };
 
 
@@ -86,8 +101,8 @@ export const updateRoom = room => {
   return db
     .table("rooms")
     .put(room)
-    .then(() => {
-      return room;
+    .then(id => {
+      return getRoom(id)
     })
     .catch(err => console.log(err))
 };

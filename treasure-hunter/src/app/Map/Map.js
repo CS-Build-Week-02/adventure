@@ -25,7 +25,7 @@ const Map = ({ rooms, path, currentRoom }) => {
 
     return (
         <>
-            <XYPlot height={500} width={500} animation={true}>
+            <XYPlot height={500} width={500}>
                 <VerticalGridLines />
                 <HorizontalGridLines />
                 <XAxis />

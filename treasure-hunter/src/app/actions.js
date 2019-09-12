@@ -73,7 +73,7 @@ export default WrappedComponent => {
       await this.coolOff();
       let status = await this.status()
 
-      if (status.encumbrance > status.strength) {
+      if (status.encumbrance > status.strength - 1) {
         
         let inventory = status.inventory
         let diff = status.encumbrance - status.strength
@@ -133,6 +133,22 @@ export default WrappedComponent => {
         });
     };
 
+    change_name = async name => {
+      await this.coolOff()
+
+      return axios
+      .post(`${config.API_PATH}/change_name`, {
+        name: [name]
+      })
+      .then(({data}) => {
+        this.cooling = data.cooldown ? +data.cooldown : 10
+        return data
+      })
+      .catch(err => {
+        throw err
+      })
+    }
+
     pray = () => {
       //TODO do this
     };
@@ -149,6 +165,7 @@ export default WrappedComponent => {
         .then(async ({ data }) => {
           this.cooling = data.cooldown ? +data.cooldown : 10;
           await setRoom(data)
+          this.setState({...this.state, dropped: false})
           return data;
         })
         .catch(err => {
@@ -182,11 +199,25 @@ export default WrappedComponent => {
         const r = breadcrumbs[breadcrumbs.length - 1];
         await this.setState({ currentRoom: r });
 
+      
+
         // if there are items in the room, pick it up
         if (r.items.length && !this.state.dropped) {
           for (let item of r.items) {
             const itemTaken = await this.take(item);
             console.log("item taken", itemTaken);
+          }
+        }
+
+        if (r.room_id === 467) {
+          const status = await this.status()
+          if (status.gold >= 1000) {
+            await this.change_name("Angelon")
+            let status = await this.status()
+            console.log("STATUS: ", status)
+          }
+          else {
+            console.log("You're in Pirate Ry's but you don't have enough gold to change your name.", JSON.stringify(status, null, 1))
           }
         }
 
@@ -221,6 +252,7 @@ export default WrappedComponent => {
             
 
             // add and set our next room, visitedRoom
+            
             let visitedRoom = await addRoom(nextRoom);
 
             // add previous room to stack so we know where to backtrack to
