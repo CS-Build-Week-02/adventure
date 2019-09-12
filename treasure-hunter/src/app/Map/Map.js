@@ -8,16 +8,8 @@ const Map = ({ rooms, path, currentRoom }) => {
     const [yDomain, setYDomain] = useState([])
 
     useEffect(() => {
-        let newRooms = path.map(room => {
-            let str = room.coordinates.replace("(", "").replace(")", "").replace(",", "").split('')
-            let coors = { x: parseInt(`${str[0]}${str[1]}`), y: parseInt(`${str[2]}${str[3]}`) }
-            return coors
-        })
-
-
-        setData(newRooms)
-        setYDomain([(Math.min(newRooms.map(coor => coor.y)) - 10), (Math.max(newRooms.map(coor => coor.y)) + 10)])
-        setXDomain([(Math.min(newRooms.map(coor => coor.x)) - 10), (Math.max(newRooms.map(coor => coor.x)) + 10)])
+        
+        setData(path)
         
     }, [currentRoom])
 

@@ -6,7 +6,7 @@ import { ActionButtons } from "./ActionButtons";
 import Map from './Map/Map'
 import axios from "axios";
 import config from "config";
-import { init, getAllRooms } from "../db";
+import { init, getAllRooms, getPath } from "../db";
 import { default as withActions } from "./actions";
 
 const App = () => {
@@ -18,19 +18,24 @@ const App = () => {
   useEffect(() => {
     axios.defaults.headers.common["Authorization"] = `Token ${config.API_KEY}`;
 
-    init().then(room => {
-      setPath([room])
-      setCurrentRoom(room);
+    init().then(res => {
+      console.log(res)
+      setPath([...res.path])
+      setCurrentRoom(res.room);
     });
 
   }, []);
 
   useEffect(() => {
-    getAllRooms().then(newRooms => {
-      setRooms(newRooms)
-    }).then(res => {
-      setPath([...path, currentRoom])
+    getAllRooms()
+    .then(newRooms => {
+      return setRooms(newRooms)
     })
+    .then(rooms => {
+      return getPath()
+    })
+    .then(path => setPath(path))
+    .catch(err => console.log(err))
   }, [currentRoom])
 
 

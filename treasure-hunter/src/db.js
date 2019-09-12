@@ -1,6 +1,7 @@
 import Dexie from "dexie";
 import axios from "axios";
 import config from "config";
+import contourSeries from "react-vis/dist/plot/series/contour-series";
 
 let db;
 
@@ -8,7 +9,8 @@ export const init = () => {
   
   db = new Dexie("TreasureHuntDB");
   db.version(1).stores({
-    rooms: "&id"
+    rooms: "&id",
+    path: "++id"
   });
 
   let url = `${config.API_PATH}/init`;
@@ -24,6 +26,30 @@ export const init = () => {
           return getRoom(data.room_id);
         }
       });
+    })
+    .then(room => {
+      return (
+      db.path
+      .toArray()
+      .then(coors => {
+        if (!coors.length) {
+          return addPath(room)
+          .then(id => {
+            return getPath()
+            .then(path => {
+              return {room: room, path: path}
+            })
+          })
+        }
+        else {
+          return getPath()
+          .then(path => {
+            return {room: room, path: path}
+          }
+          )
+        }
+      })
+      )
     })
     .catch(err => {
       throw err;
@@ -46,6 +72,14 @@ export const getRoom = id => {
 export const getAllRooms = () => {
   return db.rooms.toArray().then(rooms => rooms).catch(err => console.log(err))
       
+}
+
+export const getPath = () => {
+  return db.path.toArray().then(path => path).catch(err => console.log(err))
+}
+
+export const getLatestPath = id => {
+  return db.path.get(id).then(coor => coor).catch(err => console.log(err))
 }
 
 export const addRoom = async room => {
@@ -90,7 +124,19 @@ else {
   
 };
 
+export const addPath = room => {
+  let str = room.coordinates.replace("(", "").replace(")", "").replace(",", "").split('')
+  let coors = { x: parseInt(`${str[0]}${str[1]}`), y: parseInt(`${str[2]}${str[3]}`) }
 
+  return db
+  .table("path")
+  .add(coors)
+  .then(id => {
+    return getLatestPath(id)
+  })
+  .then(coor => coor)
+  .catch(err => console.log(err))
+}
 
 export const updateRoom = room => {
   /**

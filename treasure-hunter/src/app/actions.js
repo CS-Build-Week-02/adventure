@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import axios from "axios";
-import { addRoom, count, getRoom, getAllRooms, updateRoom } from "../db";
+import { addRoom, count, getRoom, getAllRooms, updateRoom, getPath, getLatestPath, addPath } from "../db";
 import config from "config";
 
 export default WrappedComponent => {
@@ -164,6 +164,7 @@ export default WrappedComponent => {
         })
         .then(async ({ data }) => {
           this.cooling = data.cooldown ? +data.cooldown : 10;
+          await addPath(data)
           await setRoom(data)
           this.setState({...this.state, dropped: false})
           return data;
