@@ -124,9 +124,9 @@ else {
   
 };
 
-export const addPath = room => {
+export const addPath = (dir, room) => {
   let str = room.coordinates.replace("(", "").replace(")", "").replace(",", "").split('')
-  let coors = { x: parseInt(`${str[0]}${str[1]}`), y: parseInt(`${str[2]}${str[3]}`), room_id: room.room_id }
+  let coors = { x: parseInt(`${str[0]}${str[1]}`), y: parseInt(`${str[2]}${str[3]}`), room_id: room.room_id, direction: dir }
 
   return db
   .table("path")

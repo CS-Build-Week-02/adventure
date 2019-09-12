@@ -164,7 +164,7 @@ export default WrappedComponent => {
         })
         .then(async ({ data }) => {
           this.cooling = data.cooldown ? +data.cooldown : 10;
-          await addPath(data)
+          await addPath(dir, data)
           await setRoom(data)
           this.setState({...this.state, dropped: false})
           return data;
