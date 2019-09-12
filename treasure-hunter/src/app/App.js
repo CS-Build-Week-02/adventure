@@ -8,6 +8,7 @@ import axios from "axios";
 import config from "config";
 import { init, getAllRooms } from "../db";
 import { default as withActions } from "./actions";
+import {Room} from "../app/room/room";
 
 const App = () => {
   const [currentRoom, setCurrentRoom] = useState(null)
@@ -41,6 +42,7 @@ const App = () => {
         setCurrentRoom={setCurrentRoom}
       />
       <Map rooms={rooms} path={path} currentRoom={currentRoom} />
+      <Room currentRoom={currentRoom}></Room>
     </div>
   );
 }
