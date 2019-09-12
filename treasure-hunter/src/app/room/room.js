@@ -10,52 +10,14 @@ import { Card, CardContent, CardHeader } from "@material-ui/core";
 export class Room extends Component {
     constructor(props) {
         super(props)
-        this.state ={
-            isFetching: false,
-            room: [],
-            setPath: [],
-            setCurrentRoom: [],
-            currentRoom: []
-        }
+
  
 
 
 
     }
 
-     componentDidMount() {
-        console.log('component did mount')
-        this.somethingIsUpdated()
-        
-        console.log(this.state)
 
-        init().then(room => {
-            this.state.setPath([room])
-            this.state.setCurrentRoom(room);
-          });
-        getAllRooms()
-        console.log('get all rooms fired')
-      
-        // do something on startup to initialize data
-    };
-
-
-    
-
-
-    somethingIsUpdated() {
-        if(this.props.currentRoom == null){
-
-            //  console.log(this.isFetching)
-             
-        }
-          
-        else {
-            console.log(this.props.currentRoom.currentRoom.room_id)
-        }
-
-
-    }
 
     
     
