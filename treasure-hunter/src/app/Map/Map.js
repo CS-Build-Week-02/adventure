@@ -4,28 +4,26 @@ import { XYPlot, LineMarkSeries, XAxis, YAxis, VerticalGridLines, HorizontalGrid
 const Map = ({ rooms, path, currentRoom }) => {
 
     const [data, setData] = useState([])
+    const [xDomain, setXDomain] = useState([])
+    const [yDomain, setYDomain] = useState([])
 
     useEffect(() => {
-        let newRooms = path.map(room => {
-            let str = room.coordinates.replace("(", "").replace(")", "").replace(",", "").split('')
-            let coors = { x: parseInt(`${str[0]}${str[1]}`), y: parseInt(`${str[2]}${str[3]}`) }
-            return coors
-        })
-
-        setData(newRooms)
+        
+        setData(path)
+        
     }, [currentRoom])
 
     
 
     return (
         <>
-            <XYPlot height={500} width={500} animation={true}>
+            <XYPlot height={500} width={500}>
                 <VerticalGridLines />
                 <HorizontalGridLines />
                 <XAxis />
                 <YAxis />
-                <LineMarkSeries data={data} />
-                {data.length > 1 ? <MarkSeries data={[data[data.length - 1]]} color={"red"} /> : null}
+                <LineMarkSeries data={data} xPadding={10000 / data.length} yPadding={10000 / data.length}/>
+                {data.length >= 1 ? <MarkSeries data={[data[data.length - 1]]} color={"red"} /> : null}
             </XYPlot>
         </>
     )

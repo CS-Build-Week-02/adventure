@@ -1,13 +1,16 @@
 import Dexie from "dexie";
 import axios from "axios";
 import config from "config";
+import contourSeries from "react-vis/dist/plot/series/contour-series";
 
 let db;
 
 export const init = () => {
+  
   db = new Dexie("TreasureHuntDB");
   db.version(1).stores({
-    rooms: "&id"
+    rooms: "&id",
+    path: "++id"
   });
 
   let url = `${config.API_PATH}/init`;
@@ -23,6 +26,30 @@ export const init = () => {
           return getRoom(data.room_id);
         }
       });
+    })
+    .then(room => {
+      return (
+      db.path
+      .toArray()
+      .then(coors => {
+        if (!coors.length) {
+          return addPath(room)
+          .then(id => {
+            return getPath()
+            .then(path => {
+              return {room: room, path: path}
+            })
+          })
+        }
+        else {
+          return getPath()
+          .then(path => {
+            return {room: room, path: path}
+          }
+          )
+        }
+      })
+      )
     })
     .catch(err => {
       throw err;
@@ -47,10 +74,30 @@ export const getAllRooms = () => {
       
 }
 
-export const addRoom = room => {
+export const getPath = () => {
+  return db.path.toArray().then(path => path).catch(err => console.log(err))
+}
+
+export const getLatestPath = id => {
+  return db.path.get(id).then(coor => coor).catch(err => console.log(err))
+}
+
+export const addRoom = async room => {
   /**
    * adds a room to the map
    */
+  let check = await getRoom(room.room_id)
+  if (check) {
+    room.id = room.room_id;
+    return updateRoom(room)
+    .then(room => {
+      return room
+    })
+    .catch(err => {
+      console.log(err)
+    })
+  }
+else {
   room.id = room.room_id;
   let exits = {};
   for (let r of room.exits) {
@@ -73,9 +120,23 @@ export const addRoom = room => {
           console.log(err);
         });
     });
+}
+  
 };
 
+export const addPath = room => {
+  let str = room.coordinates.replace("(", "").replace(")", "").replace(",", "").split('')
+  let coors = { x: parseInt(`${str[0]}${str[1]}`), y: parseInt(`${str[2]}${str[3]}`) }
 
+  return db
+  .table("path")
+  .add(coors)
+  .then(id => {
+    return getLatestPath(id)
+  })
+  .then(coor => coor)
+  .catch(err => console.log(err))
+}
 
 export const updateRoom = room => {
   /**
@@ -86,8 +147,8 @@ export const updateRoom = room => {
   return db
     .table("rooms")
     .put(room)
-    .then(() => {
-      return room;
+    .then(id => {
+      return getRoom(id)
     })
     .catch(err => console.log(err))
 };
