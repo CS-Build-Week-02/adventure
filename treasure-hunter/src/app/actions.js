@@ -155,7 +155,7 @@ export default WrappedComponent => {
 
     move = async (dir, setRoom, nextRoomId) => {
       await this.coolOff();
-      this.setState({...this.state, dropped: false})
+      
 
       return axios
         .post(`${config.API_PATH}/move`, {
@@ -223,7 +223,7 @@ export default WrappedComponent => {
         }
 
         // you're in a store, sell the treasure
-        if (r.title === "Store") {
+        if (r.room_id === 1) {
           // get current inventory
           const status = await this.status();
           console.log("status:", status);
