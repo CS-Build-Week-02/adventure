@@ -183,46 +183,6 @@ export default WrappedComponent => {
         });
     };
 
-    findPath = async (startingRoom, destination) => {
-      console.log("Finding path...");
-      return new Promise(async resolve => {
-        let path = [],
-          visited = {};
-
-        path.push(startingRoom);
-        visited[startingRoom.id] = true;
-
-        while (path.length) {
-          let r = path[path.length - 1],
-            badPath = true;
-
-          for (let dir of Object.keys(r.exits)) {
-            if (r.id === destination) {
-              return resolve(path);
-            }
-          }
-
-          for (let dir of Object.keys(r.exits)) {
-            if (r.exits[dir] > -1 && !visited[r.exits[dir]]) {
-              badPath = false;
-              let adj = await getRoom(r.exits[dir]);
-              path.push(adj);
-              visited[adj.id] = true;
-              break;
-            }
-          }
-
-          if (badPath) {
-            path.pop();
-          }
-        }
-
-        if (!path.length) {
-          resolve(null);
-        }
-      });
-    };
-
     explore = async (startingRoom, setRoom, addNewRoom) => {
       this.setState({ exploring: true });
       let breadcrumbs = localStorage.getItem("breadcrumbs");
@@ -359,6 +319,73 @@ export default WrappedComponent => {
           }
         }
       }
+    };
+
+    findPath = async (startingRoom, destination) => {
+      console.log("Finding path...");
+      return new Promise(async resolve => {
+        let path = [],
+          visited = {};
+
+        path.push(startingRoom);
+        visited[startingRoom.id] = true;
+
+        while (path.length) {
+          let r = path[path.length - 1],
+            badPath = true;
+
+          for (let dir of Object.keys(r.exits)) {
+            if (r.id === destination) {
+              return resolve(path);
+            }
+          }
+
+          for (let dir of Object.keys(r.exits)) {
+            if (r.exits[dir] > -1 && !visited[r.exits[dir]]) {
+              badPath = false;
+              let adj = await getRoom(r.exits[dir]);
+              path.push(adj);
+              visited[adj.id] = true;
+              break;
+            }
+          }
+
+          if (badPath) {
+            path.pop();
+          }
+        }
+
+        if (!path.length) {
+          resolve(null);
+        }
+      });
+    };
+
+    followPath = path => {
+      return new Promise(async resolve => {
+        // iterate each room in the path
+        let room;
+        for (let ind in path) {
+          room = path[+ind];
+          const nextRoom = path[+ind + 1];
+
+          if (room && nextRoom) {
+            // find the room id of the exit to the next room
+            let exit;
+            for (let ex of Object.keys(room.exits)) {
+              console.log(room.exits[ex], nextRoom.id);
+              if (room.exits[ex] === nextRoom.id) {
+                exit = room.exits[ex];
+              }
+            }
+
+            // move to that room id
+            await this.move(exit);
+          }
+        }
+        // return the end room
+        resolve(room);
+      });
     };
 
     render() {
