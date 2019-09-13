@@ -35,6 +35,20 @@ class ActionButtons extends Component {
     this.setState({ [prop]: val });
   };
 
+  go = async () => {
+    this.setState({ loading: "go to" });
+
+    const nextRoom = await this.props.goTo(
+      this.props.currentRoom,
+      this.state.destination,
+      this.props.setCurrentRoom
+    );
+
+    console.log(nextRoom);
+
+    this.setState({ open: false, loading: false });
+  };
+
   render() {
     const { currentRoom, setCurrentRoom } = this.props;
 
@@ -110,17 +124,11 @@ class ActionButtons extends Component {
             margin="normal"
           />
           <Button
+            disabled={this.state.loading === "go to"}
             style={{ margin: "10px" }}
             variant="contained"
             color="secondary"
-            onClick={() => {
-              this.props.goTo(
-                currentRoom,
-                this.state.destination,
-                setCurrentRoom
-              );
-              this.setState({ open: false });
-            }}
+            onClick={this.go}
           >
             GO
           </Button>

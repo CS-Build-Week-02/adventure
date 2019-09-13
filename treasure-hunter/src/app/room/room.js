@@ -12,9 +12,7 @@ export class Room extends Component {
     super(props);
   }
 
-  componentDidUpdate() {
-    console.log("component did update");
-  }
+  componentDidUpdate() {}
 
   render() {
     //
