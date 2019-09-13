@@ -102,6 +102,7 @@ class ActionButtons extends Component {
             Where would you like to go?
           </DialogTitle>
           <TextField
+            style={{ margin: "10px" }}
             id="destination"
             label="Destination"
             placeholder="Enter a room ID"
@@ -109,6 +110,9 @@ class ActionButtons extends Component {
             margin="normal"
           />
           <Button
+            style={{ margin: "10px" }}
+            variant="contained"
+            color="secondary"
             onClick={() => {
               this.props.goTo(
                 currentRoom,
