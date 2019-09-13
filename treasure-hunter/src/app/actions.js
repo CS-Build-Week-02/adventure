@@ -147,17 +147,19 @@ export default WrappedComponent => {
       await this.coolOff();
 
       return axios
-        .post(`${config.API_PATH}/change_name`, {
-          name: [name]
-        })
-        .then(({ data }) => {
-          this.cooling = data.cooldown ? +data.cooldown : 10;
-          return data;
-        })
-        .catch(err => {
-          throw err;
-        });
-    };
+      .post(`${config.API_PATH}/change_name`, {
+        name: "Angelon", 
+        confirm: "aye"
+      })
+      .then(({data}) => {
+        this.cooling = data.cooldown ? +data.cooldown : 10
+        return data
+      })
+      .catch(err => {
+        throw err
+      })
+    }
+
 
     pray = () => {
       //TODO do this

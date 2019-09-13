@@ -28,15 +28,20 @@ export const init = () => {
     .then(room => {
       return db.path.toArray().then(coors => {
         if (!coors.length) {
-          return addPath(room).then(id => {
-            return getPath().then(path => {
-              return { room: room, path: path };
-            });
-          });
-        } else {
-          return getPath().then(path => {
-            return { room: room, path: path };
-          });
+          return addPath(null, room)
+          .then(id => {
+            return getPath()
+            .then(path => {
+              return {room: room, path: path}
+            })
+          })
+        }
+        else {
+          return getPath()
+          .then(path => {
+            return {room: room, path: path}
+          }
+          )
         }
       });
     })
@@ -155,5 +160,5 @@ export const updateRoom = room => {
     .then(id => {
       return getRoom(id);
     })
-    .catch(err => console.log(err));
+    .catch(err => console.log(err))
 };
