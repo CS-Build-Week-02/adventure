@@ -127,20 +127,34 @@ export default WrappedComponent => {
     };
 
     sell = async item => {
-      await this.coolOff();
+      return new Promise(async resolve => {
+        let player = await this.status();
 
-      return axios
-        .post(`${config.API_PATH}/sell`, {
-          name: item,
-          confirm: "yes"
-        })
-        .then(({ data }) => {
-          this.cooling = data.cooldown ? +data.cooldown : 10;
-          return data;
-        })
-        .catch(err => {
-          throw err;
-        });
+        let itemsSold = 0;
+        if (player.inventory.length) {
+          for (let item of player.inventory) {
+            await this.coolOff();
+
+            await axios
+              .post(`${config.API_PATH}/sell`, {
+                name: item,
+                confirm: "yes"
+              })
+              .then(({ data }) => {
+                this.cooling = data.cooldown ? +data.cooldown : 10;
+                return data;
+              })
+              .catch(err => {
+                throw err;
+              });
+            itemsSold++;
+          }
+        }
+
+        player = await this.status();
+        console.log("player status: ", player);
+        resolve(player);
+      });
     };
 
     change_name = async name => {
@@ -148,7 +162,7 @@ export default WrappedComponent => {
 
       return axios
         .post(`${config.API_PATH}/change_name`, {
-          name: "Kyle",
+          name: "Kyle Baker",
           confirm: "aye"
         })
         .then(({ data }) => {
@@ -238,7 +252,7 @@ export default WrappedComponent => {
           if (status.inventory.length) {
             for (let item of status.inventory) {
               const soldItem = await this.sell(item);
-              console.log("item sold: ", soldItem);
+              console.log("items sold, status is now: ", soldItem);
             }
           }
         }
@@ -410,6 +424,7 @@ export default WrappedComponent => {
           status={this.status}
           take={this.take}
           goTo={this.goTo}
+          sell={this.sell}
           {...this.state}
           {...this.props}
         />

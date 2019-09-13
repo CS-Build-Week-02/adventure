@@ -49,6 +49,13 @@ class ActionButtons extends Component {
     this.setState({ open: false, loading: false });
   };
 
+  handleSell = () => {
+    this.setState({ loading: "sell" });
+    this.props.sell().then(() => {
+      this.setState({ loading: false });
+    });
+  };
+
   render() {
     const { currentRoom, setCurrentRoom } = this.props;
 
@@ -89,6 +96,17 @@ class ActionButtons extends Component {
           disabled={currentRoom && !currentRoom.items.length}
         >
           Take Treasure
+        </Button>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={this.handleSell}
+          disabled={
+            (currentRoom && currentRoom.id !== 1) ||
+            this.state.loading === "sell"
+          }
+        >
+          Sell Items
         </Button>
         <Button
           variant="contained"
