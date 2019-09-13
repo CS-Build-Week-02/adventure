@@ -147,19 +147,18 @@ export default WrappedComponent => {
       await this.coolOff();
 
       return axios
-      .post(`${config.API_PATH}/change_name`, {
-        name: "Angelon", 
-        confirm: "aye"
-      })
-      .then(({data}) => {
-        this.cooling = data.cooldown ? +data.cooldown : 10
-        return data
-      })
-      .catch(err => {
-        throw err
-      })
-    }
-
+        .post(`${config.API_PATH}/change_name`, {
+          name: "Angelon",
+          confirm: "aye"
+        })
+        .then(({ data }) => {
+          this.cooling = data.cooldown ? +data.cooldown : 10;
+          return data;
+        })
+        .catch(err => {
+          throw err;
+        });
+    };
 
     pray = () => {
       //TODO do this
@@ -323,6 +322,15 @@ export default WrappedComponent => {
       }
     };
 
+    goTo = async (start, dest, setRoom) => {
+      const path = await this.findPath(start, dest);
+      if (path && path.length) {
+        return await this.followPath(path, setRoom);
+      } else {
+        return "No path found";
+      }
+    };
+
     findPath = async (startingRoom, destination) => {
       console.log("Finding path...");
       return new Promise(async resolve => {
@@ -361,10 +369,10 @@ export default WrappedComponent => {
       });
     };
 
-    followPath = path => {
+    followPath = (path, setRoom) => {
       return new Promise(async resolve => {
         // iterate each room in the path
-        let room;
+        let room, dir;
         for (let ind in path) {
           room = path[+ind];
           const nextRoom = path[+ind + 1];
@@ -374,12 +382,13 @@ export default WrappedComponent => {
             let exit;
             for (let ex of Object.keys(room.exits)) {
               if (room.exits[ex] === nextRoom.id) {
-                exit = room.exits[ex];
+                exit = nextRoom.id;
+                dir = ex;
               }
             }
 
-            // move to that room id
-            await this.move(exit);
+            // move to that room direction
+            await this.move(dir, setRoom, exit);
           }
         }
         // return the end room
@@ -394,6 +403,7 @@ export default WrappedComponent => {
           move={this.move}
           status={this.status}
           take={this.take}
+          goTo={this.goTo}
           {...this.state}
           {...this.props}
         />
