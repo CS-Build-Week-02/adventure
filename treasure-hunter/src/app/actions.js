@@ -148,7 +148,7 @@ export default WrappedComponent => {
 
       return axios
         .post(`${config.API_PATH}/change_name`, {
-          name: "Angelon",
+          name: "Kyle",
           confirm: "aye"
         })
         .then(({ data }) => {
@@ -170,7 +170,7 @@ export default WrappedComponent => {
       return axios
         .post(`${config.API_PATH}/move`, {
           direction: dir,
-          next_room_id: nextRoomId
+          next_room_id: nextRoomId.toString()
         })
         .then(async ({ data }) => {
           this.cooling = data.cooldown ? +data.cooldown : 10;
@@ -323,12 +323,17 @@ export default WrappedComponent => {
     };
 
     goTo = async (start, dest, setRoom) => {
-      const path = await this.findPath(start, dest);
-      if (path && path.length) {
-        return await this.followPath(path, setRoom);
-      } else {
-        return "No path found";
-      }
+      return new Promise(async resolve => {
+        const path = await this.findPath(start, dest);
+
+        if (path && path.length) {
+          console.log("following path...");
+          const r = await this.followPath(path, setRoom);
+          resolve(r);
+        } else {
+          resolve(null);
+        }
+      });
     };
 
     findPath = async (startingRoom, destination) => {
@@ -344,7 +349,7 @@ export default WrappedComponent => {
           let r = path[path.length - 1],
             badPath = true;
 
-          if (r.id === destination) {
+          if (r.id === +destination) {
             return resolve(path);
           }
 
@@ -370,6 +375,7 @@ export default WrappedComponent => {
     };
 
     followPath = (path, setRoom) => {
+      console.log(path);
       return new Promise(async resolve => {
         // iterate each room in the path
         let room, dir;
