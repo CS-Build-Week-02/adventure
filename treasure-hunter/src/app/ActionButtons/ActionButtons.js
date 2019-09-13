@@ -2,8 +2,13 @@ import React, { Component } from "react";
 import { FlexRow } from "style";
 import { Button } from "@material-ui/core";
 import { default as withActions } from "../actions";
+import Dialog from "@material-ui/core/Dialog";
+import DialogTitle from "@material-ui/core/DialogTitle";
+import TextField from "@material-ui/core/TextField";
 
 class ActionButtons extends Component {
+  state = { open: false };
+
   moveAndSetCurrentRoom = dir => {
     // TODO look up room id in dictionary to see if we know the next room id and send that along if so
 
@@ -24,6 +29,10 @@ class ActionButtons extends Component {
         console.log("item taken: ", itemTaken);
       }
     }
+  };
+
+  handleChange = (val, prop) => {
+    this.setState({ [prop]: val });
   };
 
   render() {
@@ -75,6 +84,43 @@ class ActionButtons extends Component {
         >
           Explore
         </Button>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => this.setState({ open: true })}
+          disabled={!currentRoom}
+        >
+          Go To
+        </Button>
+
+        <Dialog
+          onClose={() => this.setState({ open: false })}
+          aria-labelledby="simple-dialog-title"
+          open={this.state.open}
+        >
+          <DialogTitle id="simple-dialog-title">
+            Where would you like to go?
+          </DialogTitle>
+          <TextField
+            id="destination"
+            label="Destination"
+            placeholder="Enter a room ID"
+            onChange={e => this.handleChange(e.target.value, "destination")}
+            margin="normal"
+          />
+          <Button
+            onClick={() => {
+              this.props.goTo(
+                currentRoom,
+                this.state.destination,
+                setCurrentRoom
+              );
+              this.setState({ open: false });
+            }}
+          >
+            GO
+          </Button>
+        </Dialog>
       </FlexRow>
     );
   }
