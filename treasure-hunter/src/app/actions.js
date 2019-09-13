@@ -138,7 +138,8 @@ export default WrappedComponent => {
 
       return axios
       .post(`${config.API_PATH}/change_name`, {
-        name: [name]
+        name: "Angelon", 
+        confirm: "aye"
       })
       .then(({data}) => {
         this.cooling = data.cooldown ? +data.cooldown : 10

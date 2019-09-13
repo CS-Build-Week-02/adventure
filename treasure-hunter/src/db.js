@@ -33,7 +33,7 @@ export const init = () => {
       .toArray()
       .then(coors => {
         if (!coors.length) {
-          return addPath(room)
+          return addPath(null, room)
           .then(id => {
             return getPath()
             .then(path => {
