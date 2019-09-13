@@ -334,10 +334,8 @@ export default WrappedComponent => {
           let r = path[path.length - 1],
             badPath = true;
 
-          for (let dir of Object.keys(r.exits)) {
-            if (r.id === destination) {
-              return resolve(path);
-            }
+          if (r.id === destination) {
+            return resolve(path);
           }
 
           for (let dir of Object.keys(r.exits)) {
@@ -373,7 +371,6 @@ export default WrappedComponent => {
             // find the room id of the exit to the next room
             let exit;
             for (let ex of Object.keys(room.exits)) {
-              console.log(room.exits[ex], nextRoom.id);
               if (room.exits[ex] === nextRoom.id) {
                 exit = room.exits[ex];
               }
