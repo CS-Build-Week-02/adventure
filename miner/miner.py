@@ -79,27 +79,29 @@ if __name__ == '__main__':
     coins_mined = 0
 
    
-    cooldown = 0
+    
     # Run forever until interrupted
     while True:
         # TODO: Get the last proof from the server and 
         # generate a request with last_proof
+        cooldown = 44
         
         time.sleep(cooldown)
-        req = requests.get(node+'/last_proof', headers={'Authorization': 'ADD KEY HERE', 'Content-Type': 'application/json'})
+        req = requests.get(node+'/last_proof', headers={'Authorization': 'Token 47c29baf79a10ccedc4a36c04da77ea8b33bbc35', 'Content-Type': 'application/json'})
         print(req.text)
         # req.encoding = 'utf-8'
         # req.text.json()
         request = req.json()
-        print(request['proof'])
+        print("REQUEST: ", request)
         proof = request['proof']
         difficulty = request['difficulty']
         cooldown = request['cooldown']
         # look for a new one
         new_proof = proof_of_work(proof, difficulty)
+        string = new_proof
 
         data = {
-            "proof":new_proof
+            "proof":string
         }
 
         print('THIS IS WHAT NEEDS TO BE POSTED WITH POSTMAN')
@@ -109,8 +111,9 @@ if __name__ == '__main__':
         # TODO: We're going to have to research how to do a POST in Python
         # HINT: Research `requests` and remember we're sending our data as JSON
         time.sleep(cooldown)
-        r = requests.post(url = node+'/mine',headers={'Authorization': 'ADD KEY HERE', 'Content-Type': 'application/json'} ,data = data )
-        # print(r.content)
+        r = requests.post(url = node+'/mine',headers={'Authorization': 'Token 47c29baf79a10ccedc4a36c04da77ea8b33bbc35', 'Content-Type': 'application/json'} ,data = data )
+        print(r.content)
+        cooldown = r.content['cooldown']
         
        
 

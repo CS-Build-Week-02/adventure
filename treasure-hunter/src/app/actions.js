@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import axios from "axios";
+import shajs from "sha.js";
 import {
   addRoom,
   count,
@@ -52,7 +53,7 @@ export default WrappedComponent => {
       await this.coolOff();
 
       return axios
-        .post(`${config.API_PATH}/examine`, {
+        .post(`${config.API_PATH}/adv/examine`, {
           name: itemOrPlayer
         })
         .then(({ data }) => {
@@ -68,7 +69,7 @@ export default WrappedComponent => {
       await this.coolOff();
 
       return axios
-        .post(`${config.API_PATH}/status`)
+        .post(`${config.API_PATH}/adv/status`)
         .then(({ data }) => {
           this.cooling = data.cooldown ? +data.cooldown : 10;
           return data;
@@ -82,7 +83,7 @@ export default WrappedComponent => {
       await this.coolOff();
       let status = await this.status();
 
-      if (status.encumbrance > status.strength - 1) {
+      if (status.encumbrance > status.strength - 3) {
         let inventory = status.inventory;
         let diff = status.encumbrance - status.strength;
         console.log(inventory);
@@ -96,7 +97,7 @@ export default WrappedComponent => {
         return this.drop(inventory[inventory.length - 1]);
       } else {
         return axios
-          .post(`${config.API_PATH}/take`, {
+          .post(`${config.API_PATH}/adv/take`, {
             name: treasure
           })
           .then(({ data }) => {
@@ -113,7 +114,7 @@ export default WrappedComponent => {
       console.log("dropping treasure... Please be patient...");
 
       return axios
-        .post(`${config.API_PATH}/drop`, {
+        .post(`${config.API_PATH}/adv/drop`, {
           name: treasure
         })
         .then(({ data }) => {
@@ -136,7 +137,7 @@ export default WrappedComponent => {
             await this.coolOff();
 
             await axios
-              .post(`${config.API_PATH}/sell`, {
+              .post(`${config.API_PATH}/adv/sell`, {
                 name: item,
                 confirm: "yes"
               })
@@ -161,7 +162,7 @@ export default WrappedComponent => {
       await this.coolOff();
 
       return axios
-        .post(`${config.API_PATH}/change_name`, {
+        .post(`${config.API_PATH}/adv/change_name`, {
           name: "Kyle Baker",
           confirm: "aye"
         })
@@ -180,25 +181,96 @@ export default WrappedComponent => {
 
     move = async (dir, setRoom, nextRoomId) => {
       await this.coolOff();
+      if (nextRoomId) {
+        return axios
+          .post(`${config.API_PATH}/adv/move`, {
+            direction: dir,
+            next_room_id: nextRoomId.toString()
+          })
+          .then(async ({ data }) => {
+            this.cooling = data.cooldown ? +data.cooldown : 10;
+            await addPath(dir, data);
+            await setRoom(data);
+            this.setState({ ...this.state, dropped: false });
+            return data;
+          })
+          .catch(err => {
+            throw err;
+          });
+      }
+      else {
+        return axios
+          .post(`${config.API_PATH}/adv/move`, {
+            direction: dir
+          })
+          .then(async ({ data }) => {
+            this.cooling = data.cooldown ? +data.cooldown : 10;
+            await addPath(dir, data);
+            await setRoom(data);
+            this.setState({ ...this.state, dropped: false });
+            return data;
+          })
+          .catch(err => {
+            throw err;
+          });
+      }
 
-      return axios
-        .post(`${config.API_PATH}/move`, {
-          direction: dir,
-          next_room_id: nextRoomId.toString()
-        })
-        .then(async ({ data }) => {
-          this.cooling = data.cooldown ? +data.cooldown : 10;
-          await addPath(dir, data);
-          await setRoom(data);
-          this.setState({ ...this.state, dropped: false });
-          return data;
-        })
-        .catch(err => {
-          throw err;
-        });
+
     };
 
-    explore = async (startingRoom, setRoom, addNewRoom) => {
+
+    mine = async (currentRoom) => {
+      // make sure we're in the mining room
+      if (currentRoom.room_id === 250) {
+        
+          await this.coolOff()
+          let prevBlock = '';
+          axios.get(`${config.API_PATH}/bc/last_proof`)
+            .then(async ({ data }) => {
+              console.log(data);
+              let difficulty = data.difficulty;
+              prevBlock = JSON.stringify(data.proof)
+              console.log(prevBlock);
+              let p = 0
+              while (this.test_proof(prevBlock, p, difficulty) !== true) {
+                p = p + 1
+              }
+              await this.coolOff()
+              axios.post(`${config.API_PATH}/bc/mine`, { "proof": p })
+                .then(({data}) => {
+                  console.log({message: "congrats, you mined a coin!", data: data})
+                  return this.mine(currentRoom)
+                })
+                .catch(err => {
+                  console.log(err)
+                })
+            })
+            .catch(err => {
+              console.log(err)
+            })
+        }
+      
+      else console.log("You're not in the mine!")
+    }
+
+    test_proof = (block_string, proof, difficulty) => {
+      let guess = `${block_string}${proof}`
+      let guessHash = this.hash(guess)
+
+      let startString = ''
+      for (let i = 0; i < difficulty; i++) {
+        startString += 0
+      }
+
+      return guessHash.slice(0, difficulty) === startString
+    }
+
+    hash = string => {
+      return shajs('sha256').update(string).digest('hex')
+    }
+
+
+    explore = async (startingRoom, setRoom) => {
       this.setState({ exploring: true });
       let breadcrumbs = localStorage.getItem("breadcrumbs");
       if (breadcrumbs) {
@@ -221,26 +293,26 @@ export default WrappedComponent => {
         await this.setState({ currentRoom: r });
 
         // if there are items in the room, pick it up
-        if (r.items.length && !this.state.dropped) {
-          for (let item of r.items) {
-            const itemTaken = await this.take(item);
-            console.log("item taken", itemTaken);
-          }
-        }
+        // if (r.items.length && !this.state.dropped) {
+        //   for (let item of r.items) {
+        //     const itemTaken = await this.take(item);
+        //     console.log("item taken", itemTaken);
+        //   }
+        // }
 
-        if (r.room_id === 467) {
-          const status = await this.status();
-          if (status.gold >= 1000) {
-            await this.change_name("Kyle");
-            let status = await this.status();
-            console.log("STATUS: ", status);
-          } else {
-            console.log(
-              "You're in Pirate Ry's but you don't have enough gold to change your name.",
-              JSON.stringify(status, null, 1)
-            );
-          }
-        }
+        // if (r.room_id === 467) {
+        //   const status = await this.status();
+        //   if (status.gold >= 1000) {
+        //     await this.change_name("Kyle");
+        //     let status = await this.status();
+        //     console.log("STATUS: ", status);
+        //   } else {
+        //     console.log(
+        //       "You're in Pirate Ry's but you don't have enough gold to change your name.",
+        //       JSON.stringify(status, null, 1)
+        //     );
+        //   }
+        // }
 
         // you're in a store, sell the treasure
         if (r.room_id === 1) {
@@ -309,8 +381,10 @@ export default WrappedComponent => {
               ids = Object.values(goBackTo.exits),
               ind = ids.indexOf(r.id),
               dir = this.getOppositeDir(Object.keys(goBackTo.exits)[ind]);
+            let id = goBackTo.room_id
+            console.log("nextRoomId: ", id)
             console.log("back tracking to: ", dir);
-            await this.move(dir, setRoom);
+            await this.move(dir, setRoom, id);
           } else {
             const goBackTo = breadcrumbs[breadcrumbs.length - 1];
             let ids = Object.values(goBackTo.exits);
@@ -425,6 +499,7 @@ export default WrappedComponent => {
           take={this.take}
           goTo={this.goTo}
           sell={this.sell}
+          mine={this.mine}
           {...this.state}
           {...this.props}
         />

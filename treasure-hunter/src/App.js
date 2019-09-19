@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from "react";
-import logo from "../logo.svg";
 import "./App.css";
-import "../../node_modules/react-vis/dist/style.css";
-import { ActionButtons } from "./ActionButtons";
-import Map from "./Map/Map";
+import "../node_modules/react-vis/dist/style.css";
+import { ActionButtons } from "./app/ActionButtons";
+import Map from "./app/Map/Map";
 import axios from "axios";
 import config from "config";
-import { init, getAllRooms, getPath } from "../db";
-import { default as withActions } from "./actions";
-import { Room } from "../app/room/room";
+import { init, getAllRooms, getPath } from "./db";
+import { default as withActions } from "./app/actions";
+import { Room } from "./app/room/room";
 
 const App = () => {
   const [currentRoom, setCurrentRoom] = useState(null);

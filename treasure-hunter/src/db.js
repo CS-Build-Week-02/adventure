@@ -12,7 +12,7 @@ export const init = () => {
     path: "++id"
   });
 
-  let url = `${config.API_PATH}/init`;
+  let url = `${config.API_PATH}/adv/init`;
 
   return axios
     .get(url)

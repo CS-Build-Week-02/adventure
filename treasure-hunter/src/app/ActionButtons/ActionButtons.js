@@ -119,6 +119,14 @@ class ActionButtons extends Component {
         <Button
           variant="contained"
           color="primary"
+          onClick={() => this.props.mine(currentRoom)}
+          disabled={!currentRoom}
+        >
+          Mine
+        </Button>
+        <Button
+          variant="contained"
+          color="primary"
           onClick={() => this.setState({ open: true })}
           disabled={!currentRoom}
         >
